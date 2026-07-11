@@ -36,7 +36,7 @@ export type StateCode = "NSW" | "VIC" | "QLD" | "WA" | "SA" | "TAS" | "ACT" | "N
 
 export type WallType = "brick-veneer" | "double-brick" | "concrete";
 
-export type Inclusion = "basement" | "elevator" | "ducted";
+export type Inclusion = "basement" | "elevator" | "ducted" | "mezzanine";
 
 export type FinishTier = "low" | "mid" | "high";
 
@@ -61,8 +61,8 @@ export const WALL_POINTS: Record<WallType, { points: number; label: string }> = 
 };
 
 /**
- * Optional inclusions. `basement` and `ducted` add points/m² to the base;
- * `elevator` is a separate lump sum (base + per storey-offset).
+ * Optional inclusions. `basement`, `ducted` and `mezzanine` add points/m² to
+ * the base; `elevator` is a separate lump sum (base + per storey-offset).
  */
 export const ADDON_POINTS: Record<
   Exclude<Inclusion, "elevator">,
@@ -70,9 +70,28 @@ export const ADDON_POINTS: Record<
 > = {
   basement: { points: 105, label: "Basement" },
   ducted: { points: 255, label: "Ducted air-conditioning" },
+  mezzanine: { points: 120, label: "Mezzanine" },
 };
 
 export const ELEVATOR = { base: 100000, perStorey: 9500, label: "Elevator" };
+
+/**
+ * Which optional fields apply per property type (source: the live Duo Tax
+ * calculator's field-visibility rules). Floor area and ducted A/C are always
+ * relevant, so they're not listed. Fields not applicable to the selected
+ * property type are excluded from the calculation, not just hidden in the UI.
+ */
+export const FIELD_VISIBILITY: Record<
+  PropertyType,
+  { bedrooms: boolean; elevator: boolean; wallType: boolean; basement: boolean; mezzanine: boolean }
+> = {
+  house: { bedrooms: true, elevator: true, wallType: true, basement: true, mezzanine: false },
+  granny: { bedrooms: true, elevator: false, wallType: true, basement: false, mezzanine: false },
+  townhouse: { bedrooms: true, elevator: false, wallType: true, basement: true, mezzanine: false },
+  apartment: { bedrooms: true, elevator: true, wallType: false, basement: true, mezzanine: false },
+  office: { bedrooms: false, elevator: true, wallType: false, basement: true, mezzanine: true },
+  warehouse: { bedrooms: false, elevator: false, wallType: false, basement: true, mezzanine: true },
+};
 
 /** Finish level selects a tier within the ±9% band (it doesn't scale the base). */
 export const FINISH: Record<

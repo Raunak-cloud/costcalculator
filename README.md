@@ -26,7 +26,7 @@ Requires Node 18.18+ (developed on Node 20+).
 | Requirement                                         | Where                                                                                                                                                                                     |
 | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Modern, professional, financial-institution quality | Two-pane layout, sticky live result, restrained navy/gold system, dark mode                                                                                                               |
-| **All original calculation fields retained**        | Property type, completion year, state, build type, finish level, floor area, bedrooms, storeys, wall type, and the three inclusions (basement, elevator, ducted A/C)                      |
+| **All original calculation fields retained**        | Property type, completion year, state, build type, finish level, floor area, bedrooms, storeys, wall type, and the four inclusions (basement, elevator, ducted A/C, mezzanine)            |
 | **CTA / button**                                    | "Order Initial Cost Report" → `duotax.com.au/initial-cost-report/`                                                                                                                        |
 | **"How your estimate is calculated" section**       | Shows an "Enter your details above…" prompt until a floor area is entered, then a plain-language breakdown — _Your inputs_, _What affects your estimate_, and _Totals_ (ex-GST + 10% GST) |
 | Desktop + mobile responsive                         | Two columns → single column at 880px; controls reflow at 560px                                                                                                                            |
@@ -64,7 +64,7 @@ JavaScript so the redesign reproduces its figures exactly. Base, wall and option
 core points/m² = property base (house 1560, granny 1615, townhouse 1665,
                                  apartment 1410, office 940, warehouse 590)
                + wall (brick veneer 140 / double brick 180 / concrete 220)
-               + basement 105 + ducted 255   (per m², if selected)
+               + basement 105 + ducted 255 + mezzanine 120   (per m², if selected)
 
 base (ex-lift) = core points/m²
                × (1 + 0.04 per storey above the first)        (capped at 8+ storeys)

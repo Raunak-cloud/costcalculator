@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import {
   calculate,
   money,
+  FIELD_VISIBILITY,
   FINISH,
   type BuildType,
   type CalculatorInput,
@@ -56,6 +57,7 @@ const INCLUSION_OPTIONS: { value: Inclusion; label: string; sub: string }[] = [
   { value: "basement", label: "Basement", sub: "Excavation & retention" },
   { value: "elevator", label: "Elevator", sub: "Passenger lift" },
   { value: "ducted", label: "Ducted air-conditioning", sub: "Zoned climate control" },
+  { value: "mezzanine", label: "Mezzanine", sub: "Intermediate storage level" },
 ];
 
 const FINISH_ORDER: FinishLevel[] = ["economy", "standard", "premium", "luxury"];
@@ -169,13 +171,17 @@ export default function ConstructionCostCalculator() {
 
   const result = useMemo(() => calculate(input), [input]);
   const hasEstimate = input.area > 0;
+  const visibility = FIELD_VISIBILITY[input.propertyType];
+  const visibleInclusionOptions = INCLUSION_OPTIONS.filter(
+    (o) => o.value === "ducted" || visibility[o.value as Exclude<Inclusion, "ducted">]
+  );
 
   const propertyLabel = PROPERTY_OPTIONS.find((o) => o.value === input.propertyType)?.label ?? "";
   const stateLabel = STATE_OPTIONS.find((o) => o.value === input.state)?.label ?? input.state;
   const wallLabel = WALL_OPTIONS.find((o) => o.value === input.wall)?.label ?? "";
   const buildLabelVal = BUILD_OPTIONS.find((o) => o.value === input.buildType)?.label ?? "";
   const yearLabel = input.year === "pre1987" ? "before Sept 1987" : input.year;
-  const optionsChosen = INCLUSION_OPTIONS.map(
+  const optionsChosen = visibleInclusionOptions.map(
     (o) => `${o.label} ${input.inclusions.includes(o.value) ? "Yes" : "No"}`
   ).join(" · ");
 
@@ -283,23 +289,25 @@ export default function ConstructionCostCalculator() {
                     <button type="button" aria-label="More floor area" onClick={() => step("area", 1, 0, 20000)}>+</button>
                   </div>
                 </div>
-                <div className="cc-field">
-                  <label htmlFor="bedrooms">Bedrooms</label>
-                  <div className="cc-stepper">
-                    <button type="button" aria-label="Fewer bedrooms" onClick={() => step("bedrooms", -1, 0, 20)}>−</button>
-                    <input
-                      id="bedrooms"
-                      type="number"
-                      min={0}
-                      max={20}
-                      inputMode="numeric"
-                      aria-label="Bedrooms"
-                      value={input.bedrooms}
-                      onChange={(e) => set("bedrooms", e.target.value === "" ? 0 : Math.max(0, Number(e.target.value)))}
-                    />
-                    <button type="button" aria-label="More bedrooms" onClick={() => step("bedrooms", 1, 0, 20)}>+</button>
+                {visibility.bedrooms && (
+                  <div className="cc-field">
+                    <label htmlFor="bedrooms">Bedrooms</label>
+                    <div className="cc-stepper">
+                      <button type="button" aria-label="Fewer bedrooms" onClick={() => step("bedrooms", -1, 0, 20)}>−</button>
+                      <input
+                        id="bedrooms"
+                        type="number"
+                        min={0}
+                        max={20}
+                        inputMode="numeric"
+                        aria-label="Bedrooms"
+                        value={input.bedrooms}
+                        onChange={(e) => set("bedrooms", e.target.value === "" ? 0 : Math.max(0, Number(e.target.value)))}
+                      />
+                      <button type="button" aria-label="More bedrooms" onClick={() => step("bedrooms", 1, 0, 20)}>+</button>
+                    </div>
                   </div>
-                </div>
+                )}
                 <div className="cc-field">
                   <label htmlFor="storeys">Storeys</label>
                   <div className="cc-stepper">
@@ -319,23 +327,25 @@ export default function ConstructionCostCalculator() {
                 </div>
               </div>
 
-              <div className="cc-field">
-                <label>Wall type</label>
-                <div className="cc-seg" role="radiogroup" aria-label="Wall type">
-                  {WALL_OPTIONS.map((o) => (
-                    <button
-                      key={o.value}
-                      type="button"
-                      role="radio"
-                      aria-checked={input.wall === o.value}
-                      className={`cc-seg-btn${input.wall === o.value ? " is-active" : ""}`}
-                      onClick={() => set("wall", o.value)}
-                    >
-                      {o.label}
-                    </button>
-                  ))}
+              {visibility.wallType && (
+                <div className="cc-field">
+                  <label>Wall type</label>
+                  <div className="cc-seg" role="radiogroup" aria-label="Wall type">
+                    {WALL_OPTIONS.map((o) => (
+                      <button
+                        key={o.value}
+                        type="button"
+                        role="radio"
+                        aria-checked={input.wall === o.value}
+                        className={`cc-seg-btn${input.wall === o.value ? " is-active" : ""}`}
+                        onClick={() => set("wall", o.value)}
+                      >
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </fieldset>
 
             {/* Finish */}
@@ -360,7 +370,7 @@ export default function ConstructionCostCalculator() {
             {/* Inclusions — toggles */}
             <fieldset className="cc-sec" aria-label="Inclusions">
               <div className="cc-toggles">
-                {INCLUSION_OPTIONS.map((o) => (
+                {visibleInclusionOptions.map((o) => (
                   <label key={o.value} className="cc-toggle">
                     <span className="cc-toggle-txt">
                       <span className="t">{o.label}</span>
@@ -389,10 +399,11 @@ export default function ConstructionCostCalculator() {
                 <div className="cc-blk">
                   <h3>Your inputs</h3>
                   <p className="cc-recap">
-                    Type: <strong>{propertyLabel}</strong> · Bedrooms: <strong>{input.bedrooms}</strong> ·
+                    Type: <strong>{propertyLabel}</strong>
+                    {visibility.bedrooms && <> · Bedrooms: <strong>{input.bedrooms}</strong></>} ·
                     Storeys: <strong>{input.storeys}</strong> · Area: <strong>{input.area.toLocaleString()} m²</strong>
                     <br />
-                    Wall: <strong>{wallLabel}</strong> · Spec: <strong>{result.finishLabel}</strong> ·
+                    {visibility.wallType && <>Wall: <strong>{wallLabel}</strong> · </>}Spec: <strong>{result.finishLabel}</strong> ·
                     Build: <strong>{buildLabelVal}</strong>
                     <br />
                     Location &amp; year: <strong>{stateLabel}, {yearLabel}</strong> (index {result.bci.toFixed(3)})
@@ -423,9 +434,9 @@ export default function ConstructionCostCalculator() {
                   <h3>What affects your estimate</h3>
                   <ul className="cc-list">
                     <li>Property type sets a base allowance.</li>
-                    <li>Wall type adds to the base (brick veneer / double brick / concrete).</li>
+                    {visibility.wallType && <li>Wall type adds to the base (brick veneer / double brick / concrete).</li>}
                     <li>Options add to the base: as selected.</li>
-                    <li>Storeys and bedrooms apply small multipliers.</li>
+                    <li>Storeys{visibility.bedrooms && " and bedrooms"} apply small multipliers.</li>
                     <li>Floor area scales the whole result.</li>
                     <li>Location &amp; year index ({result.bci.toFixed(3)}) adjusts for local build costs.</li>
                   </ul>

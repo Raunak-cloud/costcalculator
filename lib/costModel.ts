@@ -4,6 +4,7 @@
 import {
   ADDON_POINTS,
   ELEVATOR,
+  FIELD_VISIBILITY,
   FINISH,
   GST_RATE,
   PROPERTY_BASE,
@@ -30,6 +31,7 @@ export {
   FINISH,
   BUILD_LABEL,
   PROPERTY_LABEL,
+  FIELD_VISIBILITY,
   getBCI,
 } from "./rates";
 export type {
@@ -89,23 +91,27 @@ export function calculate(input: CalculatorInput): CalculatorResult {
   const finish = FINISH[input.finish];
   const bci = getBCI(input.state, input.year);
 
+  const visibility = FIELD_VISIBILITY[input.propertyType];
+
   const area = Math.max(0, input.area || 0);
   const floors = Math.max(1, Math.min(50, input.storeys || 1));
   const offset = storeyOffset(floors);
-  const bedF = bedroomFactor(input.bedrooms);
+  const bedF = visibility.bedrooms ? bedroomFactor(input.bedrooms) : 0;
 
   const base = PROPERTY_BASE[input.propertyType] || 0;
-  const wall = WALL_POINTS[input.wall]?.points || 0;
+  const wall = visibility.wallType ? WALL_POINTS[input.wall]?.points || 0 : 0;
   const has = (k: Inclusion) => input.inclusions.includes(k);
-  const basement = has("basement") ? ADDON_POINTS.basement.points : 0;
+  const basement = visibility.basement && has("basement") ? ADDON_POINTS.basement.points : 0;
   const ducted = has("ducted") ? ADDON_POINTS.ducted.points : 0;
+  const mezzanine = visibility.mezzanine && has("mezzanine") ? ADDON_POINTS.mezzanine.points : 0;
 
   const baseWithoutElevator =
-    (base + wall + basement + ducted) *
+    (base + wall + basement + ducted + mezzanine) *
     (1 + offset * STOREY_STEP) *
     (1 + bedF) *
     area;
-  const elevatorAllowance = has("elevator") ? ELEVATOR.base + offset * ELEVATOR.perStorey : 0;
+  const elevatorAllowance =
+    visibility.elevator && has("elevator") ? ELEVATOR.base + offset * ELEVATOR.perStorey : 0;
 
   const baseCalc = (baseWithoutElevator + elevatorAllowance) * bci;
 
