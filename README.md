@@ -26,7 +26,7 @@ Requires Node 18.18+ (developed on Node 20+).
 | Requirement                                         | Where                                                                                                                                                                                     |
 | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Modern, professional, financial-institution quality | Two-pane layout, sticky live result, restrained navy/gold system, dark mode                                                                                                               |
-| **All original calculation fields retained**        | Property type, completion year, state, build type, finish level, floor area, bedrooms, storeys, wall type, and the four inclusions (basement, elevator, mezzanine, ducted A/C)            |
+| **All original calculation fields retained**        | Property type, completion year, state, build type, finish level, floor area, bedrooms, storeys, wall type, and the three inclusions (basement, elevator, ducted A/C)                      |
 | **CTA / button**                                    | "Order Initial Cost Report" → `duotax.com.au/initial-cost-report/`                                                                                                                        |
 | **"How your estimate is calculated" section**       | Shows an "Enter your details above…" prompt until a floor area is entered, then a plain-language breakdown — _Your inputs_, _What affects your estimate_, and _Totals_ (ex-GST + 10% GST) |
 | Desktop + mobile responsive                         | Two columns → single column at 880px; controls reflow at 560px                                                                                                                            |
@@ -42,7 +42,7 @@ app/
   globals.css       Minimal reset
 components/
   ConstructionCostCalculator.tsx   Client component (UI, state, SVG illustrations)
-  construction-cost-calculator.css Scoped styles (all rules namespaced under .dt-calc)
+  construction-cost-calculator.css Scoped styles (all rules namespaced under .cc)
 lib/
   rates.ts          ← ALL dollar figures & multipliers live here (single source of truth)
   costModel.ts      Pure calculation logic (framework-agnostic, testable)
@@ -64,7 +64,7 @@ JavaScript so the redesign reproduces its figures exactly. Base, wall and option
 core points/m² = property base (house 1560, granny 1615, townhouse 1665,
                                  apartment 1410, office 940, warehouse 590)
                + wall (brick veneer 140 / double brick 180 / concrete 220)
-               + basement 105 + ducted 255 + mezzanine 120   (per m², if selected)
+               + basement 105 + ducted 255   (per m², if selected)
 
 base (ex-lift) = core points/m²
                × (1 + 0.04 per storey above the first)        (capped at 8+ storeys)
@@ -96,7 +96,7 @@ what drives the figure, and the ex-GST / GST-inclusive totals — so the estimat
 The values in [`lib/rates.ts`](lib/rates.ts) — base points, wall/option loadings and the full
 per-state **BCI datasets** — are Duo Tax's actual figures. They are isolated in that one file, so if
 Duo Tax revises a rate or adds a year to the index, it's a one-line data change with no impact on the
-calculation logic or UI. A **Rate basis** line surfaces the source and review date in the UI.
+calculation logic or UI.
 
 ---
 
