@@ -23,13 +23,13 @@ Requires Node 18.18+ (developed on Node 20+).
 
 ## How the brief is met
 
-| Requirement | Where |
-|---|---|
-| Modern, professional, financial-institution quality | Two-pane layout, sticky live result, restrained navy/gold system, dark mode |
-| **All original calculation fields retained** | Property type, completion year, state, build type, finish level, floor area, bedrooms, storeys, wall type, and the four inclusions (basement, elevator, mezzanine, ducted A/C) |
-| **CTA / button** | "Order Initial Cost Report" → `duotax.com.au/initial-cost-report/` |
-| **"How your estimate is calculated" section** | Shows an "Enter your details above…" prompt until a floor area is entered, then a plain-language breakdown — *Your inputs*, *What affects your estimate*, and *Totals* (ex-GST + 10% GST) |
-| Desktop + mobile responsive | Two columns → single column at 880px; controls reflow at 560px |
+| Requirement                                         | Where                                                                                                                                                                                     |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Modern, professional, financial-institution quality | Two-pane layout, sticky live result, restrained navy/gold system, dark mode                                                                                                               |
+| **All original calculation fields retained**        | Property type, completion year, state, build type, finish level, floor area, bedrooms, storeys, wall type, and the four inclusions (basement, elevator, mezzanine, ducted A/C)            |
+| **CTA / button**                                    | "Order Initial Cost Report" → `duotax.com.au/initial-cost-report/`                                                                                                                        |
+| **"How your estimate is calculated" section**       | Shows an "Enter your details above…" prompt until a floor area is entered, then a plain-language breakdown — _Your inputs_, _What affects your estimate_, and _Totals_ (ex-GST + 10% GST) |
+| Desktop + mobile responsive                         | Two columns → single column at 880px; controls reflow at 560px                                                                                                                            |
 
 ---
 
@@ -132,17 +132,3 @@ Treated as a hard requirement, as a financial institution would:
   by a host site.
 
 ---
-
-## Notes & assumptions
-
-- Placeholder Duo Tax branding (navy/gold, generic building mark). Swap the token values at the top
-  of the CSS and drop in the real logo for production.
-- Estimate is for the building/construction cost only, consistent with the original calculator's
-  indicative scope; it is not a quote and does not constitute legal or tax advice.
-
-## Possible next steps
-
-- Inline input validation & error states (empty / zero / out-of-range).
-- Unit tests for `costModel.ts` (pure function — straightforward to cover).
-- Real brand typeface, logo and palette from Duo Tax's design system.
-- PDF/email of the estimate; analytics on CTA conversion.
